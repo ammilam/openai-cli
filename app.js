@@ -15,7 +15,7 @@ require("dotenv").config();
 const yargs = require("yargs");
 
 // for when this is ran in automation
-const runInAutomation = yargs.argv.run_in_ci;
+const runInAutomation = yargs.argv.run_in_ci || process.env.RUN_IN_CI;
 const inputFile = yargs.argv.input_file || process.env.INPUT_FILE;
 const outputFile = yargs.argv.output_file || process.env.OUTPUT_FILE;
 const type = yargs.argv.action || process.env.ACTION;
