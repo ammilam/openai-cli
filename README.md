@@ -48,20 +48,50 @@ OPENAI_API_KEY=<your OpenAI API key>
 
 The cli tool will respond to certain prompts differently than normal dialogue.
 
-### Refactor
 
-Prompts containing "refactor" or "code comments" will expect a file containing code to refactor or describe
+### Refactor File Contents
+
+Prompts containing "refactor" will expect a file to refactor.
+
+
+You can reference a file in-line
 
 ```
 You: can you refactor ./app.js for me?
 ```
 
-### Explain
+or when prompted
 
-Prompts containing "explain" or "describe" will expect a file containing code to explain.
+```
+You: can you refactor some code for me?
+
+Enter a reference to a local file: ./app.js
+```
+
+### Describe File Contents
+
+Prompts containing "explain" or "describe" will expect a file to describe.
+
+You can reference a file in-line
 
 ```
 You: can you describe ./app.js to me?
+```
+
+or when prompted
+
+```
+You: can you explain some code to me?
+
+Enter a reference to a local file: ./app.js
+```
+
+### Code Comments
+
+Adding code comments is also supported. 
+
+```
+You: can you add code comments to ./app.js for me?
 ```
 
 ## Built With
