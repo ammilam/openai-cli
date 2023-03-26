@@ -94,6 +94,12 @@ Adding code comments is also supported.
 You: can you add code comments to ./app.js for me?
 ```
 
+## Running In Automation
+
+If you want to run this script via automation, you can do so by using the following command:
+
+$ node index.js --run_in_ci --input_file=<input_file_path> --output_file=<output_file_path> --action=refactor
+
 ## Built With
 
 - [OpenAI](https://openai.com/) - The API used
