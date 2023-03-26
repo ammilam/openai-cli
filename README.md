@@ -28,9 +28,9 @@ OPENAI_API_KEY=<your OpenAI API key>
 node app.js
 ```
 
-## Using Prebuilt Binary
+## Using Prebuilt Executable 
 
-1. Download the prebuilt binary for your operating system
+1. Download the prebuilt executable for your operating system
 
 2. Set your OpenAI API key in your .env file or pass it as an argument to the script
 
@@ -41,7 +41,7 @@ OPENAI_API_KEY=<your OpenAI API key>
 3. Run the binary
 
 ```
-./openai-cli
+./openai-cli*
 ```
 
 ## Prompts
