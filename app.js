@@ -67,7 +67,7 @@ async function promptGpt(question) {
   let response = await completion.data.choices[0].message.content;
   return response;
 }
- 
+
 // Importing necessary package to read and write files
 const fs = require("fs");
 
@@ -135,9 +135,9 @@ async function chat() {
 
   // If a code refactor was requested, prompt user for file output and write refactored code to file
   if (action == "refactor") {
-    let writeToFile = multiLinePrompt("Do you want to write the refactored code to a file? (y/n): ");
+    let writeToFile = !runInAutomation ? multiLinePrompt("Do you want to write the refactored code to a file? (y/n): ") : "yes"
     if (writeToFile.match(/[Yy]es|[Yy]/)) {
-      fileName = runInAutomation ? outputFile: multiLinePrompt("Enter a file name: ");
+      fileName = runInAutomation ? outputFile : multiLinePrompt("Enter a file name: ");
       fs.writeFileSync(fileName, response);
       console.log(`Bot: I refactored your code. Check out the ${fileName} file.`);
     }
