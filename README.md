@@ -113,11 +113,12 @@ In order to run in a container,
 # run the container
  docker run -it \
   --volume $PWD:/mount \
-  --env OPENAI_API_KEY=<your OpenAI API Key> \
+  --env OPENAI_API_KEY=<your OpenAI API key> \
   --env INPUT_FILE=/mount/app.js \
-  --env RUN_IN_CI=true
+  --env RUN_IN_CI=true \
   --env ACTION=describe \
-    ghcr.io/ammilam/openai-cli:latest
+  ghcr.io/ammilam/openai-cli:latest
+    
   ```
 
 ## Built With

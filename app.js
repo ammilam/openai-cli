@@ -1,6 +1,7 @@
 // Importing necessary packages
 const { Configuration, OpenAIApi } = require("openai");
 const prompt = require('prompt-sync')({ sigint: true });
+
 const multiLinePrompt = ask => {
   // Function to prompt user for multi-line input
   const lines = ask.split(/\r?\n/);
@@ -15,11 +16,11 @@ require("dotenv").config();
 const yargs = require("yargs");
 
 // for when this is ran in automation
-const runInAutomation = yargs.argv.run_in_ci || process.env.RUN_IN_CI;
-const inputFile = yargs.argv.input_file || process.env.INPUT_FILE;
+const runInAutomation = process.env.RUN_IN_CI || yargs.argv.run_in_ci
+const inputFile = process.env.INPUT_FILE || yargs.argv.input_file
 const outputFile = yargs.argv.output_file || process.env.OUTPUT_FILE;
-const type = yargs.argv.action || process.env.ACTION;
-
+const type = process.env.ACTION || yargs.argv.action;
+console.log(runInAutomation)
 // Check if type is provided when running in automation
 if (runInAutomation && !type) {
   console.log("You must specify a type of action when running in automation.");
@@ -48,10 +49,9 @@ if (runInAutomation && type === "code-comments" && !inputFile) {
 
 const yargsApiKey = yargs.argv.api_key || "";
 const envApiKey = process.env.OPENAI_API_KEY || "";
-let apiKey = "";
 
 // Checking for API key in different sources
-apiKey = yargsApiKey != "" ? yargsApiKey : envApiKey;
+let apiKey = yargsApiKey != "" ? yargsApiKey : envApiKey;
 
 // Prompt the user for the API key if it is not set
 if (!apiKey && !runInAutomation) {
@@ -71,6 +71,7 @@ if (!apiKey) {
 const configuration = new Configuration({
   apiKey: apiKey,
 });
+
 const openai = new OpenAIApi(configuration);
 
 // Function to prompt the OpenAI GPT-3 model and obtain a response
@@ -116,10 +117,10 @@ async function chat() {
       return;
     }
 
-    const refactorPattern = /[Rr]efactor(.*)|[Cc]ode comment(.*)/;
+    const refactorPattern = /[Rr]efactor|[Cc]ode comment/;
     const describePattern = /[Dd]escribe|[Ee]xplain/;
     const debugPattern = /[Dd]ebug|[Ff]ix/;
-    const writePattern = /[Ww]rite|[Cc]reate/;
+    const writePattern = /[Ww]rite|[Cc]reate|[Gg]enerate/;
 
     if (refactorPattern.test(question)) {
       action = "refactor";
@@ -134,7 +135,7 @@ async function chat() {
     }
   }
   // Checking what type of file processing the user wants
-  if (["refactor", "debug", "write", "describe"].includes(action) && !runInAutomation) {
+  if (["refactor", "debug", "describe"].includes(action) && !runInAutomation) {
     const fileRegex = /.([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/g;
     // Checking if a file reference was included in user input, otherwise prompt user for reference
     let file = fileRegex.test(question) ? question.match(fileRegex)[0] : multiLinePrompt("Enter a relative path to a local file: ");
@@ -163,7 +164,7 @@ async function chat() {
   }
 
   // If a code refactor was requested, prompt user for file output and write refactored code to file
-  if (["refactor", "code-comments"].includes(action)) {
+  if (["refactor", "code-comments", "write"].includes(action)) {
     let writeToFile = !runInAutomation ? multiLinePrompt("Do you want to write the refactored code to a file? (y/n): ") : "yes"
     if (writeToFile.match(/[Yy]es|[Yy]/)) {
       fileName = runInAutomation ? outputFile : multiLinePrompt("Enter a file name: ");
