@@ -71,9 +71,9 @@ async function chat() {
   }
   let action;
   // Checking what type of file processing the user wants
-  if(question.match(/[Rr]efactor(.*)|code comments(.*)|[Dd]escribe|[Ex]plain/)) {
+  if(question.match(/[Rr]efactor(.*)|[Cc]ode comment(.*)|[Dd]escribe|[Ex]plain/)) {
     switch (true) {
-      case /[Rr]efactor(.*)|code comments(.*)/.test(question):
+      case /[Rr]efactor(.*)|[Cc]ode comment(.*)/.test(question):
         action = "refactor";
         break;
       case /[Dd]escribe|[Ee]xplain/.test(question):
