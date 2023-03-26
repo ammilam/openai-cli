@@ -108,13 +108,16 @@ If you want to run this script via automation, you can do so by using the follow
 
 ## Docker
 
+In order to run in a container, 
 ```bash
 # run the container
-docker run  \
-  --volume $PWD:/mount \ 
-  --env OPENAI_API_KEY=<your OpenAI API key> \
-  ghcr.io/ammilam/openai-cli:latest \
-  "--input_file=/mount/app.js --action=describe"
+ docker run -it \
+  --volume $PWD:/mount \
+  --env OPENAI_API_KEY=<your OpenAI API Key> \
+  --env INPUT_FILE=/mount/app.js \
+  --env RUN_IN_CI=true
+  --env ACTION=describe \
+    ghcr.io/ammilam/openai-cli:latest
   ```
 
 ## Built With
@@ -125,10 +128,3 @@ docker run  \
 ## Contributors
 
 - **Andrew Milam** - [ammilam](https://github.com/ammilam)
-
-
- docker run \
-  --volume $PWD:/mount \
-  --cmd "--run_in_ci --input_file=./mount/app.js --action=describe" \
-  --env OPENAI_API_KEY=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 \
-  ghcr.io/ammilam/openai-cli:latest 
