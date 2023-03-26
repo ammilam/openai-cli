@@ -101,4 +101,4 @@ You: can you add code comments to ./app.js for me?
 
 ## Contributors
 
-- **Andrew Milam** - ammilam
+- **Andrew Milam** - [ammilam](https://github.com/ammilam)
