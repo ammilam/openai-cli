@@ -74,9 +74,9 @@ const fs = require("fs");
 // Main chat function that prompts user and generates responses using GPT-3 model
 async function chat() {
   let action;
-  let inputFileContents = fs.readFileSync(inputFile, "utf8");
 
   if (runInAutomation) {
+    let inputFileContents = fs.readFileSync(inputFile, "utf8");
     action = type;
     switch (action) {
       case "refactor":
