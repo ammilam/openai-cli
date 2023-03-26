@@ -20,14 +20,29 @@ const inputFile = yargs.argv.input_file;
 const outputFile = yargs.argv.output_file;
 const type = yargs.argv.action;
 
-if (runInAutomation && (!inputFile || !outputFile || !type)) {
-  console.log("Please provide an input file, an output file, and an action when running in automation.");
+// Check if type is provided when running in automation
+if (runInAutomation && !type) {
+  console.log("You must specify a type of action when running in automation.");
+  console.log("Valid actions are: refactor, describe, code-comments, debug")
   process.exit(1);
 }
 
-if (runInAutomation && !["refactor"].includes(type)) {
+// Check if action is valid
+if (runInAutomation && !["refactor", "describe", "code-comments", "debug"].includes(type)) {
   console.log("Please provide a valid action when running in automation.");
   console.log("Valid actions are: refactor")
+  process.exit(1);
+}
+
+// Check if input and output files are provided when executing refactor action while running in automation
+if (runInAutomation && type === "refactor" && (!inputFile || !outputFile)) {
+  console.log("You must specify an input file and an output file when refactoring or adding code comments to code while running in automation.");
+  process.exit(1);
+}
+
+// Check if input file is provided when executing code-comments action while running in automation
+if (runInAutomation && type === "code-comments" && !inputFile) {
+  console.log("You must specify an input file when adding code comments to code while running in automation.");
   process.exit(1);
 }
 
@@ -39,7 +54,7 @@ let apiKey = "";
 apiKey = yargsApiKey != "" ? yargsApiKey : envApiKey;
 
 // Prompt the user for the API key if it is not set
-if (!apiKey) {
+if (!apiKey && !runInAutomation) {
   question = multiLinePrompt("Please enter your OpenAI API key: ");
   apiKey = question;
 }
@@ -82,8 +97,16 @@ async function chat() {
       case "refactor":
         question = "can you help me refactor the following code?" + " " + inputFileContents;
         break;
+      case "describe":
+        question = "can you help describe the following code to me?" + " " + inputFileContents;
+        break;
+      case "code-comments":
+        question = "can you help me add code comments to the following code?" + " " + inputFileContents;
+        break;
+      case "debug":
+        question = "can you help me debug the following code?" + " " + inputFileContents;
+        break;
     }
-
   } else {
     // Prompting for user input
     question = multiLinePrompt("You: ");
@@ -131,10 +154,16 @@ async function chat() {
 
   // Generating response using GPT-3 model
   let response = await promptGpt(question);
-  console.log("Bot: " + response);
+
+  if (runInAutomation && ["describe", "debug"].includes(action)) {
+    console.log(response)
+    process.exit(0);
+  } else {
+    console.log("Bot: " + response);
+  }
 
   // If a code refactor was requested, prompt user for file output and write refactored code to file
-  if (action == "refactor") {
+  if (["refactor", "code-comments"].includes(action)) {
     let writeToFile = !runInAutomation ? multiLinePrompt("Do you want to write the refactored code to a file? (y/n): ") : "yes"
     if (writeToFile.match(/[Yy]es|[Yy]/)) {
       fileName = runInAutomation ? outputFile : multiLinePrompt("Enter a file name: ");
