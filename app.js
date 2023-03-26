@@ -16,9 +16,9 @@ const yargs = require("yargs");
 
 // for when this is ran in automation
 const runInAutomation = yargs.argv.run_in_ci;
-const inputFile = yargs.argv.input_file;
-const outputFile = yargs.argv.output_file;
-const type = yargs.argv.action;
+const inputFile = yargs.argv.input_file || process.env.INPUT_FILE;
+const outputFile = yargs.argv.output_file || process.env.OUTPUT_FILE;
+const type = yargs.argv.action || process.env.ACTION;
 
 // Check if type is provided when running in automation
 if (runInAutomation && !type) {
@@ -46,7 +46,7 @@ if (runInAutomation && type === "code-comments" && !inputFile) {
   process.exit(1);
 }
 
-const yargsApiKey = yargs.argv.OPENAI_API_KEY || "";
+const yargsApiKey = yargs.argv.api_key || "";
 const envApiKey = process.env.OPENAI_API_KEY || "";
 let apiKey = "";
 

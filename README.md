@@ -34,8 +34,12 @@ node app.js
 
 2. Set your OpenAI API key in your .env file or pass it as an argument to the script
 
-```
+```bash
+# as environment variable
 OPENAI_API_KEY=<your OpenAI API key>
+
+# as a flag
+./openai-cli* --api_key=<your OpenAI API key>
 ```
 
 3. Run the binary
@@ -98,7 +102,20 @@ You: can you add code comments to ./app.js for me?
 
 If you want to run this script via automation, you can do so by using the following command:
 
-$ node index.js --run_in_ci --input_file=<input_file_path> --output_file=<output_file_path> --action=refactor
+```bash
+./openai-cli* --run_in_ci --input_file=<input_file_path> --output_file=<output_file_path> --action=refactor
+```
+
+## Docker
+
+```bash
+# run the container
+docker run  \
+  --volume $PWD:/mount \ 
+  --env OPENAI_API_KEY=<your OpenAI API key> \
+  ghcr.io/ammilam/openai-cli:latest \
+  "--input_file=/mount/app.js --action=describe"
+  ```
 
 ## Built With
 
@@ -108,3 +125,10 @@ $ node index.js --run_in_ci --input_file=<input_file_path> --output_file=<output
 ## Contributors
 
 - **Andrew Milam** - [ammilam](https://github.com/ammilam)
+
+
+ docker run \
+  --volume $PWD:/mount \
+  --cmd "--run_in_ci --input_file=./mount/app.js --action=describe" \
+  --env OPENAI_API_KEY=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 \
+  ghcr.io/ammilam/openai-cli:latest 
