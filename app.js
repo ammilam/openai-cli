@@ -48,6 +48,7 @@ const openai = new OpenAIApi(configuration);
 
 // Function to prompt the OpenAI GPT-3 model and obtain a response
 async function promptGpt(question) {
+  
   const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [{ role: "user", content: question }],
@@ -70,28 +71,37 @@ async function chat() {
     return;
   }
   let action;
+  switch (true) {
+    case /[Rr]efactor(.*)|[Cc]ode comment(.*)/.test(question):
+      action = "refactor";
+      break;
+    case /[Dd]escribe|[Ee]xplain/.test(question):
+      action = "describe";
+      break;
+    case /[Dd]ebug|[Ff]ix/.test(question):
+      action = "debug";
+      break;
+    case /[Ww]rite|[Cc]reate/.test(question):
+      action = "write";
+      break;
+    default:
+      action = "dialogue";
+      break;    
+  }
+
   // Checking what type of file processing the user wants
-  if(question.match(/[Rr]efactor(.*)|[Cc]ode comment(.*)|[Dd]escribe|[Ex]plain/)) {
-    switch (true) {
-      case /[Rr]efactor(.*)|[Cc]ode comment(.*)/.test(question):
-        action = "refactor";
-        break;
-      case /[Dd]escribe|[Ee]xplain/.test(question):
-        action = "describe";
-        break
-      default:
-        action = "refactor";
-        break;    
-    }
+  if(action == "refactor" || action == "debug" || action == "write" || action == "describe") {
+    
     const fileRegex = /.([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/g;
     // Checking if a file reference was included in user input, otherwise prompt user for reference
-    let file = fileRegex.test(question) ? question.match(fileRegex)[0] : multiLinePrompt("Enter a reference to a local file: ");
+    let file = fileRegex.test(question) ? question.match(fileRegex)[0] : multiLinePrompt("Enter a relative path to a local file: ");
 
     // regex to see if file lacks relative or absolute path
-    const pathRegex = /\.\/([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/g;
+    const pathRegex = /(\.\/|\.\\|\.\.\/|\.\.\\|\/|\\)([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/g;
+    
     if (!pathRegex.test(file)) {
       // If file lacks path, prompt user for path
-      let path = multiLinePrompt("Enter a relative or absolute path to the file: ");
+      let path = multiLinePrompt("Enter a relative path to the file: ");
       file = path;
     }
     console.log(`reading file ${file}`);
