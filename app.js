@@ -61,8 +61,6 @@ const fs = require("fs");
 
 // Main chat function that prompts user and generates responses using GPT-3 model
 async function chat() {
-  // Initializing variable to check if user is requesting code refactor
-  let codeRefactor = false;
 
   // Prompting for user input
   question = multiLinePrompt("You: ");
@@ -72,7 +70,7 @@ async function chat() {
     return;
   }
   let action;
-  // Checking if user input indicates they want to refactor code
+  // Checking what type of file processing the user wants
   if(question.match(/[Rr]efactor(.*)|code comments(.*)|[Dd]escribe|[Ex]plain/)) {
     switch (true) {
       case /[Rr]efactor(.*)|code comments(.*)/.test(question):
