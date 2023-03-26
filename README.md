@@ -41,7 +41,7 @@ OPENAI_API_KEY=<your OpenAI API key>
 3. Run the binary
 
 ```
-./gpt3-chatbot
+./openai-cli
 ```
 
 ## Built With
