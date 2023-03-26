@@ -140,6 +140,9 @@ async function chat() {
       fileName = runInAutomation ? outputFile : multiLinePrompt("Enter a file name: ");
       fs.writeFileSync(fileName, response);
       console.log(`Bot: I refactored your code. Check out the ${fileName} file.`);
+      if (runInAutomation) {
+        process.exit(0);
+      }
     }
   }
 
