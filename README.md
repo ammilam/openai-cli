@@ -44,7 +44,31 @@ OPENAI_API_KEY=<your OpenAI API key>
 ./openai-cli
 ```
 
+## Prompts
+
+The cli tool will respond to certain prompts differently than normal dialogue.
+
+### Refactor
+
+Prompts containing "refactor" or "code comments" will expect a file containing code to refactor or describe
+
+```
+You: can you refactor ./app.js for me?
+```
+
+### Explain
+
+Prompts containing "explain" or "describe" will expect a file containing code to explain.
+
+```
+You: can you describe ./app.js to me?
+```
+
 ## Built With
 
 - [OpenAI](https://openai.com/) - The API used
 - [Node.js](https://nodejs.org/en/) - The runtime environment used
+
+## Contributors
+
+- **Andrew Milam** - ammilam
