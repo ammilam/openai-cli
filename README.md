@@ -1,5 +1,4 @@
-# GPT-3 Chatbot
-
+# openai-cli tool
 This is a simple chatbot that uses the OpenAI GPT-3 API to generate responses to user inputs. It can also generate code refactors based on user prompts.
 
 ## Getting Started
