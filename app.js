@@ -118,11 +118,10 @@ async function chat() {
       process.exit(0);
     }
 
-    const refactorPattern = /[Rr]efactor(.*)|[Cc]ode comment(.*)/;
-    const describePattern = /[Dd]escribe(.*)|[Ee]xplain(.*)/;
-    const debugPattern = /[Dd]ebug(.*)|[Ff]ix(.*)/;
-    const writePattern = /[Ww]rite(.*)|[Cc]reate(.*)|[Gg]enerate(.*)/;
-
+    const refactorPattern = /[Rr]efactor|[Cc]ode comment/;
+    const describePattern = /[Dd]escribe|[Ee]xplain/;
+    const debugPattern = /[Dd]ebug|[Ff]ix/;
+    const writePattern = /[Ww]rite|[Cc]reate|[Gg]enerate/;
     if (refactorPattern.test(question)) {
       action = "refactor";
     } else if (describePattern.test(question)) {
