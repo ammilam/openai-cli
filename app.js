@@ -16,33 +16,33 @@ require("dotenv").config();
 const yargs = require("yargs");
 
 // for when this is ran in automation
-const runInAutomation = process.env.RUN_IN_CI || yargs.argv.run_in_ci || false;
+const runInAutomation = process.env.RUN_IN_CI || yargs.argv.run_in_ci;
 const inputFile = process.env.INPUT_FILE || yargs.argv.input_file
 const outputFile = yargs.argv.output_file || process.env.OUTPUT_FILE;
 const type = process.env.ACTION || yargs.argv.action;
 
 // Check if type is provided when running in automation
-if (runInAutomation == true && !type) {
+if (runInAutomation && !type) {
   console.log("You must specify a type of action when running in automation.");
   console.log("Valid actions are: refactor, describe, code-comments, debug")
   process.exit(1);
 }
 
 // Check if action is valid
-if (runInAutomation == true && !["refactor", "describe", "code-comments", "debug"].includes(type)) {
+if (runInAutomation && !["refactor", "describe", "code-comments", "debug"].includes(type)) {
   console.log("Please provide a valid action when running in automation.");
   console.log("Valid actions are: refactor")
   process.exit(1);
 }
 
 // Check if input and output files are provided when executing refactor action while running in automation
-if (runInAutomation == true && type === "refactor" && (!inputFile || !outputFile)) {
+if (runInAutomation && type === "refactor" && (!inputFile || !outputFile)) {
   console.log("You must specify an input file and an output file when refactoring or adding code comments to code while running in automation.");
   process.exit(1);
 }
 
 // Check if input file is provided when executing code-comments action while running in automation
-if (runInAutomation == true && type === "code-comments" && !inputFile) {
+if (runInAutomation && type === "code-comments" && !inputFile) {
   console.log("You must specify an input file when adding code comments to code while running in automation.");
   process.exit(1);
 }
@@ -54,7 +54,7 @@ const envApiKey = process.env.OPENAI_API_KEY || "";
 let apiKey = yargsApiKey != "" ? yargsApiKey : envApiKey;
 
 // Prompt the user for the API key if it is not set
-if (!apiKey && runInAutomation == false) {
+if (!apiKey && !runInAutomation) {
   question = multiLinePrompt("Please enter your OpenAI API key: ");
   apiKey = question;
 }
@@ -91,7 +91,7 @@ const fs = require("fs");
 async function chat() {
   let action;
 
-  if (runInAutomation == true) {
+  if (runInAutomation) {
     let inputFileContents = fs.readFileSync(inputFile, "utf8");
     action = type;
     switch (action) {
@@ -117,10 +117,10 @@ async function chat() {
       return;
     }
 
-    const refactorPattern = /[Rr]efactor|[Cc]ode comment/;
-    const describePattern = /[Dd]escribe|[Ee]xplain/;
-    const debugPattern = /[Dd]ebug|[Ff]ix/;
-    const writePattern = /[Ww]rite|[Cc]reate|[Gg]enerate/;
+    const refactorPattern = /[Rr]efactor(.*)|[Cc]ode comment(.*)/;
+    const describePattern = /[Dd]escribe(.*)|[Ee]xplain(.*)/;
+    const debugPattern = /[Dd]ebug(.*)|[Ff]ix(.*)/;
+    const writePattern = /[Ww]rite(.*)|[Cc]reate(.*)|[Gg]enerate(.*)/;
 
     if (refactorPattern.test(question)) {
       action = "refactor";
@@ -134,8 +134,9 @@ async function chat() {
       action = "dialogue";
     }
   }
+
   // Checking what type of file processing the user wants
-  if (["refactor", "debug", "describe"].includes(action) && runInAutomation == false) {
+  if (["refactor", "debug", "describe"].includes(action) && !runInAutomation) {
     const fileRegex = /.([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/g;
     // Checking if a file reference was included in user input, otherwise prompt user for reference
     let file = fileRegex.test(question) ? question.match(fileRegex)[0] : multiLinePrompt("Enter a relative path to a local file: ");
@@ -146,6 +147,7 @@ async function chat() {
       let path = multiLinePrompt("Enter a relative path to the file: ");
       file = path;
     }
+
     console.log(`reading file ${file}`);
 
     let fileContents = fs.readFileSync(file, "utf8");
@@ -156,7 +158,7 @@ async function chat() {
   // Generating response using GPT-3 model
   let response = await promptGpt(question);
 
-  if (runInAutomation == true && ["describe", "debug"].includes(action)) {
+  if (runInAutomation && ["describe", "debug"].includes(action)) {
     console.log(response)
     process.exit(0);
   } else {
@@ -165,12 +167,12 @@ async function chat() {
 
   // If a code refactor was requested, prompt user for file output and write refactored code to file
   if (["refactor", "code-comments", "write"].includes(action)) {
-    let writeToFile = runInAutomation == false ? multiLinePrompt("Do you want to write the refactored code to a file? (y/n): ") : "yes"
+    let writeToFile = !runInAutomation ? multiLinePrompt("Do you want to write the refactored code to a file? (y/n): ") : "yes"
     if (writeToFile.match(/[Yy]es|[Yy]/)) {
-      fileName = runInAutomation == true ? outputFile : multiLinePrompt("Enter a file name: ");
+      fileName = runInAutomation ? outputFile : multiLinePrompt("Enter a file name: ");
       fs.writeFileSync(fileName, response);
       console.log(`Bot: I refactored your code. Check out the ${fileName} file.`);
-      if (runInAutomation == true) {
+      if (runInAutomation) {
         process.exit(0);
       }
     }
