@@ -114,14 +114,14 @@ async function chat() {
 
     // Exiting chat if user input indicates they want to end the conversation
     if (question.match(/[Bb]ye|[Ee]xit|[Cc]lose|[Ss]ee [Yy]a|[Ff]uck [Oo]ff|[Nn]o [Th]anks/)) {
-      return;
+      console.log("Goodbye!");
+      process.exit(0);
     }
 
-    const refactorPattern = /[Rr]efactor(.*)|[Cc]ode comment(.*)/;
-    const describePattern = /[Dd]escribe(.*)|[Ee]xplain(.*)/;
-    const debugPattern = /[Dd]ebug(.*)|[Ff]ix(.*)/;
-    const writePattern = /[Ww]rite(.*)|[Cc]reate(.*)|[Gg]enerate(.*)/;
-
+    const refactorPattern = /[Rr]efactor|[Cc]ode comment/;
+    const describePattern = /[Dd]escribe|[Ee]xplain/;
+    const debugPattern = /[Dd]ebug|[Ff]ix/;
+    const writePattern = /[Ww]rite|[Cc]reate|[Gg]enerate/;
     if (refactorPattern.test(question)) {
       action = "refactor";
     } else if (describePattern.test(question)) {
@@ -130,6 +130,7 @@ async function chat() {
       action = "debug";
     } else if (writePattern.test(question)) {
       action = "write";
+      question = question.replace(writePattern, "generate");
     } else {
       action = "dialogue";
     }
