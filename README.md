@@ -98,6 +98,22 @@ Adding code comments is also supported.
 You: can you add code comments to ./app.js for me?
 ```
 
+### Write Solutions
+
+The tool can also use OpenAI to write completely new files. 
+
+```
+You: can you write an example kubernetes image pull secret for me?
+```
+
+### Debug Code
+
+Code can also be debugged
+
+```
+You: can you help me debug hello.py?
+```
+
 ## Running In Automation
 
 If you want to run this script via automation, you can do so by using the following command:
