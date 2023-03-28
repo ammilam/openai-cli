@@ -2,6 +2,16 @@
 const { Configuration, OpenAIApi } = require("openai");
 const prompt = require('prompt-sync')({ sigint: true });
 
+// Importing necessary package to read and write files
+const fs = require("fs");
+
+// Importing necessary package to read environment variables
+require("dotenv").config();
+
+// Importing necessary package to parse command line arguments
+const yargs = require("yargs");
+
+// Function to prompt user for multi-line input
 const multiLinePrompt = ask => {
   // Function to prompt user for multi-line input
   const lines = ask.split(/\r?\n/);
@@ -12,24 +22,23 @@ const multiLinePrompt = ask => {
 
 // Initializing variables to store API key
 let question;
-require("dotenv").config();
-const yargs = require("yargs");
 
 // for when this is ran in automation
 const runInAutomation = process.env.RUN_IN_CI || yargs.argv.run_in_ci;
 const inputFile = process.env.INPUT_FILE || yargs.argv.input_file
 const outputFile = yargs.argv.output_file || process.env.OUTPUT_FILE;
 const type = process.env.ACTION || yargs.argv.action;
+const cliPrompt = process.env.PROMPT || yargs.argv.prompt;
 
 // Check if type is provided when running in automation
-if (runInAutomation && !type) {
-  console.log("You must specify a type of action when running in automation.");
+if (runInAutomation && (!type || !cliPrompt)) {
+  console.log("You must specify a type of action or text prompt when running in automation.");
   console.log("Valid actions are: refactor, describe, code-comments, debug")
   process.exit(1);
 }
 
 // Check if action is valid
-if (runInAutomation && !["refactor", "describe", "code-comments", "debug"].includes(type)) {
+if (runInAutomation && (!["refactor", "describe", "code-comments", "debug"].includes(type) || !cliPrompt)) {
   console.log("Please provide a valid action when running in automation.");
   console.log("Valid actions are: refactor")
   process.exit(1);
@@ -84,9 +93,6 @@ async function promptGpt(question) {
   return response;
 }
 
-// Importing necessary package to read and write files
-const fs = require("fs");
-
 // Main chat function that prompts user and generates responses using GPT-3 model
 async function chat() {
   let action;
@@ -107,6 +113,9 @@ async function chat() {
       case "debug":
         question = "can you help me debug the following code?" + " " + inputFileContents;
         break;
+      default:
+        question = cliPrompt + " " + inputFileContents;
+        break;
     }
   } else {
     // Prompting for user input
@@ -122,6 +131,7 @@ async function chat() {
     const describePattern = /[Dd]escribe|[Ee]xplain/;
     const debugPattern = /[Dd]ebug|[Ff]ix/;
     const writePattern = /[Ww]rite|[Cc]reate|[Gg]enerate/;
+
     if (refactorPattern.test(question)) {
       action = "refactor";
     } else if (describePattern.test(question)) {
@@ -136,18 +146,15 @@ async function chat() {
     }
   }
 
+  // Checking if user input includes a file reference
+  const fileRegex = /.([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/;
+  const checkForFileReference = fileRegex.test(question);
+
   // Checking what type of file processing the user wants
-  if (["refactor", "debug", "describe"].includes(action) && !runInAutomation) {
-    const fileRegex = /.([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/g;
+  if ((["refactor", "debug", "describe"].includes(action) || checkForFileReference) && !runInAutomation) {
+
     // Checking if a file reference was included in user input, otherwise prompt user for reference
     let file = fileRegex.test(question) ? question.match(fileRegex)[0] : multiLinePrompt("Enter a relative path to a local file: ");
-
-    const pathRegex = /(\.\/|\.\\|\.\.\/|\.\.\\|\/|\\)([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/g;
-    if (!pathRegex.test(file)) {
-      // If file lacks path, prompt user for path
-      let path = multiLinePrompt("Enter a relative path to the file: ");
-      file = path;
-    }
 
     console.log(`reading file ${file}`);
 
@@ -167,14 +174,15 @@ async function chat() {
   }
 
   // If a code refactor was requested, prompt user for file output and write refactored code to file
-  if (["refactor", "code-comments", "write"].includes(action)) {
+  if (["refactor", "code-comments", "write"].includes(action) || checkForFileReference) {
     let writeToFile = !runInAutomation ? multiLinePrompt("Do you want to write the refactored code to a file? (y/n): ") : "yes"
     if (writeToFile.match(/[Yy]es|[Yy]/)) {
       fileName = runInAutomation ? outputFile : multiLinePrompt("Enter a file name: ");
       fs.writeFileSync(fileName, response);
-      console.log(`Bot: I refactored your code. Check out the ${fileName} file.`);
       if (runInAutomation) {
         process.exit(0);
+      } else {
+        console.log(`Bot: Generated ${fileName}`);
       }
     }
   }
