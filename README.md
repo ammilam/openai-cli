@@ -36,6 +36,17 @@ Please enter your OpenAI API key:
 ./openai-cli*
 ```
 
+## Command Line Arguments
+
+The tool can be run with the following command line arguments:
+
+- `--api_key`: specifies the OpenAI API key to use
+- `--input_file`: specifies the input file to use for actions that require a code file
+- `--output_file`: specifies the output file to write refactored or commented code to
+- `--run_in_ci`: runs the chatbot in automation mode
+- `--action`: specifies the action to perform in automation mode
+- `--prompt`: specifies the text to prompt the OpenAI GPT-3 model with in automation mode
+
 ## Prompts
 
 The cli tool will respond to certain prompts differently than normal dialogue.
