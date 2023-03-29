@@ -6,7 +6,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  
+
 jobs:
   release:
     permissions: write-all
@@ -27,6 +27,7 @@ jobs:
     - run: npm ci
     - run: npm install pkg -g
     - run: pkg .
+    - run: for i in $(ls |grep openai-cli); do chmod +x $i; done
 
     - name: Create Release
       id: create_release
@@ -47,7 +48,7 @@ jobs:
         tag: ${{ steps.tag_version.outputs.new_tag }}
         overwrite: true
         file_glob: true
-        
+
     - name: Upload binaries to latest release
       uses: svenstaro/upload-release-action@v2
       with:
@@ -56,11 +57,10 @@ jobs:
         tag: latest
         overwrite: true
         file_glob: true
-    
+
     - name: Repository Dispatch
       uses: peter-evans/repository-dispatch@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         event-type: release-output
         client-payload: '{"release": "${{ steps.tag_version.outputs.new_tag }}"}'
-  
