@@ -27,7 +27,9 @@ jobs:
     - run: npm ci
     - run: npm install pkg -g
     - run: pkg .
-    - run: for i in $(ls |grep openai-cli); do chmod +x $i; done
+
+    - name: Make executeable
+      run: for i in $(ls |grep openai-cli); do chmod +x $i; done
 
     - name: Create Release
       id: create_release
