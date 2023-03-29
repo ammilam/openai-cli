@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node app.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Andrew Milam",
+  "license": "MIT",
   "dependencies": {
     "dotenv": "^16.0.3",
     "openai": "^3.2.1",
