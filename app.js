@@ -200,7 +200,7 @@ async function chat() {
 
   // If a code refactor was requested, prompt user for file output and write refactored code to file
   if (["refactor", "code-comments", "write"].includes(action) || checkForFileReference) {
-    let writeToFile = !runInAutomation ? multiLinePrompt("Do you want to write the refactored code to a file? (y/n): ") : "yes"
+    let writeToFile = !runInAutomation ? multiLinePrompt("Do you want to write the response to a file? (y/n): ") : "yes"
     if (writeToFile.match(/[Yy]es|[Yy]/)) {
       fileName = runInAutomation ? outputFile : multiLinePrompt("Enter a file name: ");
       fs.writeFileSync(fileName, response);
