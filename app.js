@@ -1,6 +1,11 @@
 // Importing necessary packages
-const { Configuration, OpenAIApi } = require("openai");
-const prompt = require('prompt-sync')({ sigint: true });
+const {
+  Configuration,
+  OpenAIApi
+} = require("openai");
+const prompt = require('prompt-sync')({
+  sigint: true
+});
 
 // Importing necessary package to read and write files
 const fs = require("fs");
@@ -87,7 +92,10 @@ const openai = new OpenAIApi(configuration);
 async function promptGpt(question) {
   const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
-    messages: [{ role: "user", content: question }],
+    messages: [{
+      role: "user",
+      content: question
+    }],
   });
   let response = await completion.data.choices[0].message.content;
   return response;
@@ -147,15 +155,32 @@ async function chat() {
   }
 
   // Checking if user input includes a file reference
-  const fileRegex = /.([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/;
-  const checkForFileReference = fileRegex.test(question);
+  // regex that matches a file path but does not match a url
+  const linuxRe = /.([a-zA-Z0-9_\-\/\\]+\.([a-zA-Z0-9_\-]+))/;
+  const windowsRe = /(?:[a-zA-Z]:\\|\\\\[\w.]+\\[\w.$]+)\\(?:[\w]+\\)*\w([\w.])+/;
+  const urlRe = /https?:\/\/[^\s]+/;
+
+  const checkForURLReference = urlRe.test(question);
+
+  // check if question has a match for linuxRe or windowsRe, if so, set checkForFileReference to the matching regex and fs.existsSync to see if it exists
+  let fileExists;
+  switch(true) {
+    case linuxRe.test(question):
+      file = question.match(linuxRe)[0]
+      checkForFileReference = true
+      fileExists = fs.existsSync(file)
+      break;
+    case windowsRe.test(question):
+    file = question.match(windowsRe)[0]
+    checkForFileReference = true
+      fileExists = fs.existsSync(file)
+      break;
+    default:
+      checkForFileReference = false
+  }
 
   // Checking what type of file processing the user wants
-  if ((["refactor", "debug", "describe"].includes(action) || checkForFileReference) && !runInAutomation) {
-
-    // Checking if a file reference was included in user input, otherwise prompt user for reference
-    let file = fileRegex.test(question) ? question.match(fileRegex)[0] : multiLinePrompt("Enter a relative path to a local file: ");
-
+  if (fileExists && !runInAutomation && !checkForURLReference) {
     console.log(`reading file ${file}`);
 
     let fileContents = fs.readFileSync(file, "utf8");
